@@ -1,0 +1,35 @@
+.sortable{
+    background-color: gainsboro;
+    cursor: pointer;
+    padding-right: 20px;
+    position: relative;
+  }
+
+  .asc:after{
+    top: 0;
+    right: 2px;
+  border: solid transparent;
+  content: " ";
+  height: 0;
+  width: 0;
+  position: absolute;
+  pointer-events: none;
+  border-color: rgba(68, 92, 107, 0);
+  border-bottom-color: #445c6b;
+  border-width: 5px;
+  margin-left: -5px;
+  }
+  .desc:after{
+    bottom: 0;
+    right: 2px;
+  border: solid transparent;
+  content: " ";
+  height: 0;
+  width: 0;
+  position: absolute;
+  pointer-events: none;
+  border-color: rgba(68, 92, 107, 0);
+  border-top-color: #445c6b;
+  border-width: 5px;
+  margin-left: -5px;
+  }

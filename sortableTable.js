@@ -1,4 +1,4 @@
-function SortableTable(data, root, config){
+function SortableTable(root, data, config){
   this.data = data;
   this.root = $(root);
   this.config = $.extend(true, {}, config);
@@ -17,10 +17,22 @@ SortableTable.prototype = {
     this.renderBody(tbody);
   },
   renderHeaders: function(tr){
-    
+    var fields = this.config.fields;
+    var captions = this.config.captions;
+    for(var i = 0; i < fields.length; ++i)
+      $('<th>').text(captions[i]).attr('data-field', fields[i]).appendTo(tr);
+    tr.children('th').addClass('sortable');
+    tr.children('th.sortable').click(this.applySort.bind(this));
   },
   renderBody: function(tbody){
-    
+    tbody.children('tr:gt(0)').remove();
+    var fields = this.config.fields;
+    var data = this.data;
+    for(var i = 0; i < data.length; ++i){
+      var tr = $('<tr>').appendTo(tbody);
+      for(var j = 0; j < fields.length; ++j)
+        $('<td>').text(this.getField(data[i], fields[j])).appendTo(tr);
+    }
   },
   applySort: function(e){
     var field = e.currentTarget.getAttribute('data-field');
@@ -28,15 +40,15 @@ SortableTable.prototype = {
       this.view.sort = (this.view.sort[0] === '+' ? '-' : '+') + field;
     else
       this.view.sort = '+' + field;
-    this.sortByField(this.view.sort);
+    this.sortByField(this.data, this.view.sort);
     this.render();
   },
   sortByField: function(a, sort){
     if (typeof(sort) === 'string') return this.sortByField(a, [sort]);
-    sort = sort.map(key => {
-      asc: key[0] !== '-',
-      key: (key[0] === '+' || key[0] === '-') ? key.substr(1) : key
-    });
+    sort = sort.map(x => ({
+      asc: x[0] !== '-',
+      key: (x[0] === '+' || x[0] === '-') ? x.substr(1) : x
+    }));
     var getField = this.getField;
     return a.sort(function(a, b) {
       for (var i = 0; i < sort.length; ++i) {

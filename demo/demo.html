@@ -1,7 +1,11 @@
 <html>
 <head>
+  <meta charset="UTF-8"/>
   <script src="https://code.jquery.com/jquery-1.12.3.js"></script>
+  <script src="https://maxcdn.bootstrapcdn.com/bootstrap/3.3.6/js/bootstrap.min.js"></script>
+  <link rel="stylesheet" href="https://maxcdn.bootstrapcdn.com/bootstrap/3.3.6/css/bootstrap.min.css"></link>
   <script src="../sortableTable.js"></script>
+  <link rel="stylesheet" href="../sortableTable.css"></link>
   <script>
     function person(name, surname, age, year, month, day, wealth) {
       return {
@@ -40,13 +44,32 @@
     ];
     $(document).ready(function(){
       var table = new SortableTable($('#demo'), data, {
-        fields: ["name", "surname", "birth.year", "wealth"],
-        captions: ["Имя", "Фамилия", "Год рождения", "Состояние (млрд. $)"]
+        columns:[{
+            field: "name",
+            caption: "Имя",
+            sortable: true
+          },{
+            field:"surname",
+            caption:"фамилия",
+            sortable: true
+          },{
+            field:"birth.year",
+            caption:"год рождения",
+            sortable: true
+          },{
+            field:"wealth",
+            caption:"состояние(млрд. $)",
+            sortable: true
+          }
+        ],
+        caption: "Богатейшие люди планеты"
       });
     });
   </script>
 </head>
 <body>
-  <table id="demo" class="table table-bordered"></table>
+  <div class="col-lg-6">
+    <table id="demo" class="table table-bordered table-striped"></table>
+  </div>
 </body>
 </html>

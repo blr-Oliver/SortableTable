@@ -1,0 +1,23 @@
+<html>
+<head>
+  <meta charset="UTF-8"/>
+  <script src="https://code.jquery.com/jquery-1.12.3.js"></script>
+  <script src="https://maxcdn.bootstrapcdn.com/bootstrap/3.3.6/js/bootstrap.js"></script>
+  <link rel="stylesheet" href="https://maxcdn.bootstrapcdn.com/bootstrap/3.3.6/css/bootstrap.css"></link>
+  <script src="../pagination.js"></script>
+  <script>
+    $(document).ready(function(){
+      var pagination = new Pagination($('#pagination'), 0, {
+        innerLength: 2,
+        sideLength: 1,
+        total: 300
+      });
+    });
+  </script>
+</head>
+<body>
+  <div class="col-lg-6">
+    <ul id="pagination"></ul>
+  </div>
+</body>
+</html>

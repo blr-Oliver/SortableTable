@@ -12,7 +12,6 @@ function SortableTable(root, data, config){
     visibleColumns: this.config.columns.map(x => x.field)
   };
   this.config.columns = newColumns;
-  this.view.visibleColumns = this.view.visibleColumns.slice(0, 3);
   this.render();
 }
 
@@ -21,10 +20,14 @@ SortableTable.prototype = {
       '<a role="button" data-toggle="dropdown" class="btn btn-default" data-target="#" >'+
         '<i class="glyphicon glyphicon-cog"></i> <span class="caret"></span>'+
       '</a>'+
-      '<ul class="dropdown-menu multi-level" role="menu" aria-labelledby="dropdownMenu">'+
-        '<li class="dropdown-submenu">'+
+      '<ul class="dropdown-menu multi-level" role="menu">'+
+        '<li class="dropdown-submenu pull-left">'+
           '<a tabindex="-1" href="#">Видимые столбцы</a>'+
-          '<ul class="dropdown-menu field-list"></ul>'+
+          '<ul class="dropdown-menu field-list keep-open"></ul>'+
+        '</li>'+
+        '<li class="dropdown-submenu pull-left">'+
+          '<a tabindex="-1" href="#">Размер страницы</a>'+
+          '<ul class="dropdown-menu size-list"><li><a>Test</a></li></ul>'+
         '</li>'+
       '</ul>'+
     '</div>',
@@ -38,6 +41,8 @@ SortableTable.prototype = {
     this.renderBody(tbody);
   },
   renderHeaders: function(tr){
+    tr = tr || this.root.find('>tbody:eq(0)>tr:eq(0)');
+    tr.empty();
     var columns = this.config.columns;
     var visibleColumns = this.view.visibleColumns;
     for(var i = 0; i < visibleColumns.length; ++i){
@@ -49,6 +54,7 @@ SortableTable.prototype = {
     tr.children('th.sortable').click(this.applySort.bind(this));
   },
   renderBody: function(tbody){
+    tbody = tbody || this.root.children('tbody:eq(0)');
     tbody.children('tr:gt(0)').remove();
     var columns = this.config.columns;
     var visibleColumns = this.view.visibleColumns;
@@ -61,14 +67,12 @@ SortableTable.prototype = {
   },
   renderCaption: function(caption){
     caption.html(this.config.caption + this.commonCaption);
-    var ul = caption.find('div>ul>li:eq(0)>ul');
+    var columnsList = caption.find('div>ul>li:eq(0)>ul');
     for(var field in this.config.columns){
-      var li = $('<li>');
-      var a = $('<a>').attr('data-field', field).html('<i class="glyphicon glyphicon-ok"></i> ' + this.config.columns[field].caption).addClass('checked');
-      a.appendTo(li);
-      li.appendTo(ul);
+      var html = '<i class="glyphicon glyphicon-ok"></i> ' + this.config.columns[field].caption;
+      $('<a>').attr('data-field', field).html(html).addClass('checked').appendTo($('<li>').appendTo(columnsList));
     }
-    ul.find('a').click(this.toggleColumn.bind(this));
+    columnsList.find('a').click(this.toggleColumn.bind(this)).click(e => e.stopPropagation());
   },
   applySort: function(e){
     var field = e.currentTarget.getAttribute('data-field');
@@ -86,7 +90,17 @@ SortableTable.prototype = {
     this.renderBody(this.root.children('tbody'));
   },
   toggleColumn: function(e){
-    $(e.currentTarget).toggleClass('checked');
+    var target = $(e.target);
+    var field = target.attr('data-field');
+    if(target.hasClass('checked')){
+      target.removeClass('checked');
+      this.view.visibleColumns = this.view.visibleColumns.filter(x => x != field);
+    }else{
+      target.addClass('checked');
+      this.view.visibleColumns.push(field);
+    }
+    this.renderHeaders();
+    this.renderBody();
   },
   sortByField: function(a, sort){
     if (typeof(sort) === 'string') return this.sortByField(a, [sort]);

@@ -73,10 +73,14 @@ th.sortable.desc:after{
   border-radius: 6px 0 6px 6px;
 }
 
-ul.dropdown-menu.field-list a>i.glyphicon-ok{
+ul.dropdown-menu.checked-list a>i.glyphicon-ok{
   visibility: hidden;
 }
 
-ul.dropdown-menu.field-list a.checked>i.glyphicon-ok{
+ul.dropdown-menu.checked-list a.checked>i.glyphicon-ok{
   visibility: visible;
+}
+
+table.table-sortable+ul.pagination {
+  margin-top: 0;
 }

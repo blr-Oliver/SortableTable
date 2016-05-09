@@ -4,6 +4,7 @@
   <script src="https://code.jquery.com/jquery-1.12.3.js"></script>
   <script src="https://maxcdn.bootstrapcdn.com/bootstrap/3.3.6/js/bootstrap.js"></script>
   <link rel="stylesheet" href="https://maxcdn.bootstrapcdn.com/bootstrap/3.3.6/css/bootstrap.css"></link>
+  <script src="../pagination.js"></script>
   <script src="../sortableTable.js"></script>
   <link rel="stylesheet" href="../sortableTable.css"></link>
   <script>
@@ -44,6 +45,7 @@
     ];
     $(document).ready(function(){
       var table = new SortableTable($('#demo'), data, {
+        sizes: [4, 9, 10, 50],
         columns:[{
             field: "name",
             caption: "Имя",
@@ -53,8 +55,8 @@
             caption: "Фамилия",
             sortable: true
           },{
-            field: "birth.year",
-            caption: "Год рождения",
+            field: "age",
+            caption: "Возраст",
             sortable: true
           },{
             field: "wealth",
@@ -62,14 +64,15 @@
             sortable: true
           }
         ],
-        caption: "Богатейшие люди планеты"
+        caption: "Богатейшие люди планеты",
+        id: 'demo'
       });
     });
   </script>
 </head>
 <body>
   <div class="col-lg-6">
-    <table id="demo" class="table table-bordered table-striped"></table>
+    <table id="demo" class="table table-bordered table-striped table-sortable"></table>
   </div>
 </body>
 </html>

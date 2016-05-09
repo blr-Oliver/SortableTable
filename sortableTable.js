@@ -1,7 +1,9 @@
 function SortableTable(root, data, config){
   this.data = data;
   this.root = $(root);
-  this.config = $.extend(true, {}, config);
+  this.config = $.extend(true, {
+    sizes: [5, 20, 50]
+  }, config);
   var newColumns = {};
   for(var i = 0; i < this.config.columns.length; ++i){
     var column = this.config.columns[i];
@@ -12,6 +14,11 @@ function SortableTable(root, data, config){
     visibleColumns: this.config.columns.map(x => x.field)
   };
   this.config.columns = newColumns;
+  this.paginationRoot = $('<ul>').insertAfter(this.root);
+  this.pagination = new Pagination(this.paginationRoot, this.config.sizes[0], {
+    total: this.data.length
+  });
+  this.pagination.onpage = this.pageSelected.bind(this);
   this.render();
 }
 
@@ -23,11 +30,11 @@ SortableTable.prototype = {
       '<ul class="dropdown-menu multi-level" role="menu">'+
         '<li class="dropdown-submenu pull-left">'+
           '<a tabindex="-1" href="#">Видимые столбцы</a>'+
-          '<ul class="dropdown-menu field-list keep-open"></ul>'+
+          '<ul class="dropdown-menu checked-list keep-open"></ul>'+
         '</li>'+
         '<li class="dropdown-submenu pull-left">'+
           '<a tabindex="-1" href="#">Размер страницы</a>'+
-          '<ul class="dropdown-menu size-list"><li><a>Test</a></li></ul>'+
+          '<ul class="dropdown-menu checked-list size-list"></ul>'+
         '</li>'+
       '</ul>'+
     '</div>',
@@ -56,10 +63,12 @@ SortableTable.prototype = {
   renderBody: function(tbody){
     tbody = tbody || this.root.children('tbody:eq(0)');
     tbody.children('tr:gt(0)').remove();
+    var pagination = this.pagination;
     var columns = this.config.columns;
     var visibleColumns = this.view.visibleColumns;
     var data = this.data;
-    for(var i = 0; i < data.length; ++i){
+
+    for(var i = pagination.page() * pagination.size(); i < Math.min(data.length, (pagination.page() + 1) * pagination.size()); ++i){
       var tr = $('<tr>').appendTo(tbody);
       for(var j = 0; j < visibleColumns.length; ++j)
         $('<td>').text(this.getField(data[i], columns[visibleColumns[j]].field)).appendTo(tr);
@@ -72,10 +81,20 @@ SortableTable.prototype = {
       var html = '<i class="glyphicon glyphicon-ok"></i> ' + this.config.columns[field].caption;
       $('<a>').attr('data-field', field).html(html).addClass('checked').appendTo($('<li>').appendTo(columnsList));
     }
-    columnsList.find('a').click(this.toggleColumn.bind(this)).click(e => e.stopPropagation());
+    var sizeList = caption.find('div>ul>li:eq(1)>ul');
+    var sizes = this.config.sizes;
+    for(var i = 0; i < sizes.length; ++i){
+      var html = '<i class="glyphicon glyphicon-ok"></i> ' + sizes[i];
+      var a = $('<a>').html(html).appendTo($('<li>').appendTo(sizeList));
+      if(i === 0) a.addClass('checked');
+    }
+    var stopper = e => e.stopPropagation();
+    columnsList.find('a').click(this.toggleColumn.bind(this)).click(stopper);
+    sizeList.find('a').click(this.sizeChanged.bind(this)).click(stopper);
   },
   applySort: function(e){
     var field = e.currentTarget.getAttribute('data-field');
+    var pageReset = false;
     if(this.view.sort)
       this.root.find('>tbody:eq(0)>tr:eq(0)>th').removeClass('asc desc');
 
@@ -83,11 +102,16 @@ SortableTable.prototype = {
       this.view.sort = (this.view.sort[0] === '+' ? '-' : '+') + field;
     }else{
       this.view.sort = '+' + field;
+      pageReset = true;
     }
     $(e.currentTarget).addClass(this.view.sort[0] === '+' ? 'asc' : 'desc');
 
     this.sortByField(this.data, this.view.sort);
-    this.renderBody(this.root.children('tbody'));
+    if(pageReset){
+      this.pagination.page(0);
+      this.pagination.renderButtons();
+    }
+    this.renderBody();
   },
   toggleColumn: function(e){
     var target = $(e.target);
@@ -121,5 +145,18 @@ SortableTable.prototype = {
     if(typeof(field) === 'function') return field(obj);
     if(typeof(field) === 'string') field = field.split(/\./);
     return field.reduce((obj, prop) => (obj||undefined) && obj[prop], obj);
+  },
+  pageSelected: function(page){
+    this.renderBody();
+  },
+  sizeChanged: function(e){
+    var target = $(e.target);
+    target.closest('ul').find('a').removeClass('checked');
+    target.addClass('checked');
+    var size = target.text().trim();
+    this.pagination.page(0);
+    this.pagination.size(size);
+    this.pagination.renderButtons();
+    this.renderBody();
   }
 }

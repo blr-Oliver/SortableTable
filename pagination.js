@@ -1,5 +1,5 @@
 function Pagination(root, size, config){
-  this.page(0);
+  this._page = 0;
   this.size(size > 0 ? size : 20);
   this.config = $.extend({
     arrows: true,
@@ -78,13 +78,23 @@ Pagination.prototype = {
     }
   },
   page: function(page){
-    if(arguments.length)
-      this._page = page;
+    if(arguments.length){
+      if(this._page != page){
+        this._page = page;
+        if(this.onpage)
+          this.onpage(page);
+      }
+    }
     else return this._page;
   },
   size: function(size){
-    if(arguments.length)
-      this._size = size;
+    if(arguments.length){
+      if(this._size != size){
+        this._size = size;
+        if(this.onsize)
+          this.onsize(size);
+      }
+    }
     else return this._size;
   }
 }

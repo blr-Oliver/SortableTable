@@ -1,28 +1,39 @@
-function Pagination(root, size, config){
-  this._page = 0;
-  this.size(size > 0 ? size : 20);
-  this.config = $.extend({
+function Pagination(config, state){
+  this.config = {
     arrows: true,
     innerLength: 3,
     sideLength: 2
-  }, config);
-  this.config.innerLength |= 1;
-  this.root = $(root);
+  };
+  this.config.arrows = config.arrows || this.config.arrows;
+  this.config.innerLength = (config.innerLength || this.config.innerLength) | 1;
+  this.config.sideLength = config.sideLength || this.config.sideLength;
+  this.config.root = $(config.root);
+
+  this.state = {
+    page: 0,
+    size: 1,
+    total: 0
+  };
+  this.state.page = state.page || this.state.page;
+  this.state.size = state.size || this.state.size;
+  this.state.total = state.total || this.state.total;
+
   this.render();
 }
 
 Pagination.prototype = {
   render: function(){
-    var root = this.root;
+    var root = this.config.root;
     root.addClass("pagination");
     this.renderButtons();
     root.click(this.pageSelected.bind(this));
   },
   renderButtons: function(){
-    var root = this.root;
+    var root = this.config.root;
     var page = this.page();
+    var total = this.total();
     root.empty();
-    var count = Math.ceil(this.config.total / this.size());
+    var count = Math.ceil(total / this.size());
     if(count > 1){
       var i, li;
       if(this.config.arrows){
@@ -79,22 +90,32 @@ Pagination.prototype = {
   },
   page: function(page){
     if(arguments.length){
-      if(this._page != page){
-        this._page = page;
+      if(this.state.page != page){
+        this.state.page = page;
         if(this.onpage)
           this.onpage(page);
       }
     }
-    else return this._page;
+    else return this.state.page;
   },
   size: function(size){
     if(arguments.length){
-      if(this._size != size){
-        this._size = size;
+      if(this.state.size != size){
+        this.state.size = size;
         if(this.onsize)
           this.onsize(size);
       }
     }
-    else return this._size;
+    else return this.state.size;
+  },
+  total: function(total){
+    if(arguments.length){
+      if(this.state.total != total){
+        this.state.total = total;
+        if(this.ontotal)
+          this.ontotal(total);
+      }
+    }
+    else return this.state.total;
   }
 }

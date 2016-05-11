@@ -7,9 +7,13 @@
   <script src="../pagination.js"></script>
   <script>
     $(document).ready(function(){
-      var pagination = new Pagination($('#pagination'), 0, {
+      var pagination = new Pagination({
+        root: '#pagination',
         innerLength: 2,
-        sideLength: 1,
+        sideLength: 1
+      }, {
+        size: 10,
+        page: 2,
         total: 300
       });
     });

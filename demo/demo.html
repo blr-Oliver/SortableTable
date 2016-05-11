@@ -45,6 +45,7 @@
     ];
     $(document).ready(function(){
       var table = new SortableTable($('#demo'), data, {
+        keyColumn: 'surname',
         sizes: [4, 9, 10, 50],
         columns:[{
             field: "name",

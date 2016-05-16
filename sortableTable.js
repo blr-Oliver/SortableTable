@@ -11,19 +11,29 @@ function SortableTable(root, data, config){
   }
   this.view = {
     sort: null,
-    visibleColumns: this.config.columns.map(x => x.field)
+    visibleColumns: this.config.columns.map(x => x.field),
+    filter: ''
   };
   this.config.columns = newColumns;
   this.paginationRoot = $('<ul>').insertAfter(this.root);
-  this.pagination = new Pagination(this.paginationRoot, this.config.sizes[0], {
-    total: this.data.length
+  this.pagination = new Pagination({
+      root: this.paginationRoot
+    }, {
+      size: this.config.sizes[0],
+      total: this.data.length
   });
   this.pagination.onpage = this.pageSelected.bind(this);
   this.render();
 }
 
 SortableTable.prototype = {
-  commonCaption: '<div class="dropdown pull-right">' +
+  commonCaption:
+  '<div class="text-center" style="padding: 5px;"/>'+
+  '<div class="form-inline">'+
+    '<div class="form-group">'+
+      '<label/> <input type="text" class="form-control" placeholder="Input filter"/>'+
+    '</div>'+
+    '<div class="dropdown pull-right">' +
       '<a role="button" data-toggle="dropdown" class="btn btn-default" data-target="#" >'+
         '<i class="glyphicon glyphicon-cog"></i> <span class="caret"></span>'+
       '</a>'+
@@ -37,7 +47,8 @@ SortableTable.prototype = {
           '<ul class="dropdown-menu checked-list size-list"></ul>'+
         '</li>'+
       '</ul>'+
-    '</div>',
+    '</div>'+
+  '</div>',
   render: function(){
     this.root.html('<caption></caption><tbody></tbody>');
     var tbody = this.root.find('tbody');
@@ -76,18 +87,24 @@ SortableTable.prototype = {
   },
   renderCaption: function(caption){
     caption.html(this.config.caption + this.commonCaption);
-    var columnsList = caption.find('div>ul>li:eq(0)>ul');
+    var columnsList = caption.find('div.dropdown>ul>li:eq(0)>ul');
     for(var field in this.config.columns){
       var html = '<i class="glyphicon glyphicon-ok"></i> ' + this.config.columns[field].caption;
       $('<a>').attr('data-field', field).html(html).addClass('checked').appendTo($('<li>').appendTo(columnsList));
     }
-    var sizeList = caption.find('div>ul>li:eq(1)>ul');
+    var sizeList = caption.find('div.dropdown>ul>li:eq(1)>ul');
     var sizes = this.config.sizes;
     for(var i = 0; i < sizes.length; ++i){
       var html = '<i class="glyphicon glyphicon-ok"></i> ' + sizes[i];
       var a = $('<a>').html(html).appendTo($('<li>').appendTo(sizeList));
       if(i === 0) a.addClass('checked');
     }
+
+    var formInput = caption.find('.form-group');
+    formInput.children('label').text(this.config.columns[this.config.keyColumn].caption);
+
+    formInput.children('input').on('input', this.filterChanged.bind(this));
+
     var stopper = e => e.stopPropagation();
     columnsList.find('a').click(this.toggleColumn.bind(this)).click(stopper);
     sizeList.find('a').click(this.sizeChanged.bind(this)).click(stopper);
@@ -158,5 +175,14 @@ SortableTable.prototype = {
     this.pagination.size(size);
     this.pagination.renderButtons();
     this.renderBody();
+  },
+  filterChanged:function(e){
+    if(this.view.timeoutId)
+      clearTimeout(this.view.timeoutId);
+    this.view.timeoutId = setTimeout(this.updateFilter.bind(this), 300, e.target.value);
+  },
+  updateFilter: function (filter){
+    this.view.timeoutId = null;
+    console.log(this.view.filter = filter);
   }
 }

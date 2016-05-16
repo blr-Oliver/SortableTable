@@ -5,6 +5,7 @@
   <script src="https://maxcdn.bootstrapcdn.com/bootstrap/3.3.6/js/bootstrap.js"></script>
   <link rel="stylesheet" href="https://maxcdn.bootstrapcdn.com/bootstrap/3.3.6/css/bootstrap.css"></link>
   <script src="../pagination.js"></script>
+  <script src="../loader.js"></script>
   <script src="../sortableTable.js"></script>
   <link rel="stylesheet" href="../sortableTable.css"></link>
   <script>
@@ -68,6 +69,10 @@
         caption: "Богатейшие люди планеты",
         id: 'demo'
       });
+      var loader = new Loader('data.json', 2000);
+      loader.load().done(function(data){
+        console.log(data);
+      })
     });
   </script>
 </head>
